@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Will</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    ul li {
+      float: left;
+      width: 50px;
+      height: 50px;
+    }
+
+    ul li img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .star {
+      width: 250px;
+      height: 50px;
+      margin: 200px 500px;
+    }
+
+    #text {
+      position: absolute;
+      top: 210px;
+      left: 800px;
+      width: 100px;
+      height: 50px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="star">
+    <ul>
+      <li>
+        <img src="images/star.png" alt="">
+      </li>
+      <li>
+        <img src="images/star.png" alt="">
+      </li>
+      <li>
+        <img src="images/star.png" alt="">
+      </li>
+      <li>
+        <img src="images/star.png" alt="">
+      </li>
+      <li>
+        <img src="images/star.png" alt="">
+      </li>
+    </ul>
+  </div>
+  <div id="text">滑动选择,点击确定</div>
+  <script>
+    //星星框
+    const ul = document.getElementsByTagName("ul")[0]
+    //每个星星
+    const star = document.getElementsByTagName("li")
+    //星星图片
+    const img = document.getElementsByTagName("img")
+    //评分
+    const arr = ['很差', '差', '一般', '推荐', '力荐']
+    
+    //确定状态,true离开清除
+    let qingchu = true
+
+    //鼠标进入ul开始事件
+    ul.onmouseenter = function () {
+      for (let i = 0; i < star.length; i++) {
+        star[i].onmouseenter = function () {
+          qingchu = true
+          //鼠标所在位置之前点亮
+          for (let j = 0; j <= i; j++) {
+            img[j].src = 'images/star1.png'
+          }
+          //鼠标位置之后熄灭
+          for (let k = star.length - 1; k > i; k--) {
+            img[k].src = 'images/star.png'
+          }
+          text.innerHTML = arr[i]
+        }
+        //点击确定,不清楚
+        star[i].onclick = function () {
+          qingchu = false
+        }
+      }
+    }
+
+    //鼠标移除
+    ul.onmouseleave = function () {
+      if (qingchu) {
+        for (let i = 0; i < star.length; i++) {
+          //清除事件,貌似不清楚也行
+          star[i].onmouseenter = null
+          img[i].src = 'images/star.png'
+          text.innerHTML = "滑动选择,点击确定"
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

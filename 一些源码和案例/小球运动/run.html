@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="Keywords" content="will">
+  <meta name='Description' content="will">
+  <title>Will</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    li {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      border-radius: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <ul id="ul"></ul>
+  <script>
+    //解构要用的函数
+    const { max, min, floor, random } = Math;
+    let ul = document.getElementById("ul")
+
+    //窗口大小
+    let clientW = getLim('x')
+    let clientH = getLim('y')
+
+    //窗口大小改变
+    window.onresize = function () {
+      clientW = getLim('x')
+      clientH = getLim('y')
+    }
+
+    //页面点击函数
+    document.onclick = function () {
+      /* 随机值写在这里，减轻newBall压力 */
+      //随机大小
+      let size = randomNum(40, 100)
+      //随机速度, 正负随机
+      let speedX = randomNum(2, 5) * ranZF()
+      let speedY = randomNum(2, 5) * ranZF()
+      //随机背景
+      let bg = getColor()
+      //随机初始位置
+      let poX = randomNum(0, clientW)
+      let poY = randomNum(0, clientH)
+
+      newBall(speedX, speedY, bg, size, poX, poY)
+    }
+
+    //生成小球
+    function newBall(speedX, speedY, bg, size, poX, poY) {
+      let li = document.createElement("li")
+      li.style.cssText = `background: ${bg}; width:${size}px; height:${size}px; left:${poX};top:${poY}`
+      ul.appendChild(li)
+
+      //初始值
+      let left = poX
+      let top = poY
+
+      //极限值
+      let maxX = clientW - size
+      let maxY = clientH - size
+
+      run()
+      function run() {
+        left += speedX;
+        top += speedY
+        maxX = clientW - size
+        maxY = clientH - size
+
+        //垂直方向超过边界, Y速度取反
+        if (top <= 0 || top >= maxY) {
+          li.style.background = getColor()
+          speedY = -speedY
+          //限定
+          top = max(top, 0)
+          top = min(maxY, top)
+        }
+
+        //水平方向超过边界,X速度取反
+        if (left <= 0 || left >= maxX) {
+          li.style.background = getColor()
+          speedX = -speedX
+          //限定
+          left = max(left, 0)
+          left = min(maxX, left)
+        }
+
+        li.style.left = left + "px"
+        li.style.top = top + "px"
+
+        requestAnimationFrame(run)
+      }
+    }
+
+    //获取颜色
+    function getColor() {
+      // let R = Math.floor(Math.random() * 256)
+      // let G = Math.floor(Math.random() * 256)
+      // let B = Math.floor(Math.random() * 256)
+      // return `rgb(${R},${G},${B})`
+
+      return `#${random().toString(16).slice(-6)}`
+    }
+
+    //获取随机值, a-b != c 
+    function randomNum(a, b, c) {
+      let val = floor(random() * (b + 1 - a) + a)
+      val = (val == c) ? randomNum(a, b, c) : val
+      return val
+    }
+
+    //获取边界值
+    function getLim(XorY) {
+      let x = (XorY == 'x') ? document.documentElement.clientWidth : document.documentElement.clientHeight
+      return x
+    }
+
+    //随机正负
+    function ranZF() {
+      let a = (random() - 0.5 >= 0) ? 1 : -1
+      return a
+    }
+
+  </script>
+</body>
+
+</html>

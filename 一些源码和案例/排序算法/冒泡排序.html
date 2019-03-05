@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Will</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    let arr = [1, 3, 5, 4, 8, 9, 11, 12, 21, 25, 5, 7, 2, 10, 20, 55, 100, 50]
+    let len = arr.length
+    for (var i = 0; i < len; i++) {
+      for (var j = i; j < len; j++) {
+        // > 是升序  < 是降序
+        if (arr[i] > arr[j]) [arr[i], arr[j]] = [arr[j], arr[i]]
+      }
+    }
+    console.log(arr)
+  </script>
+</body>
+
+</html>

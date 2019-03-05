@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Will</title>
+  <script src='https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js'></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="date">今天的日期是</div>
+  <div id="content"></div>
+  <script>
+    $(".date").click(() => {
+      $.ajax({
+        url: "http://localhost:3000",
+        method: "GET",
+        success(msg) {
+          content.innerHTML = JSON.parse(msg).date
+        }
+      })
+    })
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Will</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    let arr = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    let len = arr.length - 1
+
+    //随机数
+    const random = ([a, b], c) => {   //区间 a-b 不包括 c
+      let val = Math.floor(Math.random() * (b + 1 - a) + a)
+      return val === c ? random([a, b], c) : val
+    }
+    // i   
+    // o    1
+    // len  len-1
+
+    for (let i = 0; i < len * 2; i++) {
+      let _i = i % len
+
+      //正向随机 
+      let ran = random([0, len], _i)
+        ;[arr[_i], arr[ran]] = [arr[ran], arr[_i]]
+
+      //反向随机
+      ran = random([0, len], len - _i)
+        ;[arr[len - _i], arr[ran]] = [arr[ran], arr[len - _i]]
+    }
+
+    console.log(arr)
+
+
+
+
+
+  </script>
+</body>
+
+</html>

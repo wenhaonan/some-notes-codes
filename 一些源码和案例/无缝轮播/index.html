@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Will</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      outline: none
+    }
+
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    html,
+    body {
+      background: grey;
+      width: 100%;
+      height: 100%;
+    }
+
+    .wrap {
+      position: relative;
+      width: 800px;
+      height: 520px;
+      top: 50px;
+      left: 375px;
+      overflow: hidden;
+    }
+
+    .img-wrap {
+      position: absolute;
+      width: 4800px;
+      height: 520px;
+      left: 0
+    }
+
+    .img-wrap a {
+      display: block;
+      float: left;
+      width: 800px;
+      height: 520px;
+    }
+
+
+    .wrap .img-show img {
+      width: 100%;
+      height: 100%;
+    }
+
+    .btn-wrap {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .change-btn {
+      width: 40px;
+      height: 60px;
+      background: rgba(0, 0, 0, .2);
+      border: none;
+      cursor: pointer;
+    }
+
+    .left {
+      position: absolute;
+      top: 240px;
+      left: 0px;
+      z-index: 999;
+    }
+
+    .left:hover {
+      background: #666;
+    }
+
+    .left img {
+      width: 20px;
+      height: 20px;
+      margin-top: 5px;
+      margin-left: 2px;
+    }
+
+    .right {
+      position: absolute;
+      top: 240px;
+      left: 760px;
+      z-index: 998;
+    }
+
+    .right:hover {
+      background: #666;
+    }
+
+    .right img {
+      width: 20px;
+      height: 20px;
+      margin-top: 5px;
+      margin-left: 2px;
+    }
+
+    .dot-wrap {
+      position: absolute;
+      top: 470px;
+      left: 315px;
+      width: 150px;
+      height: 30px;
+      background: rgba(255, 255, 255, .5);
+      border-radius: 15px;
+    }
+
+    .dot {
+      width: 20px;
+      height: 20px;
+      float: left;
+      background: #fff;
+      border-radius: 50%;
+      margin: 5px 6px 0 4px;
+      opacity: .3;
+      cursor: pointer;
+    }
+
+    .now-dot {
+      width: 20px;
+      height: 20px;
+      position: absolute;
+      left: 4px;
+      top: 5px;
+      border-radius: 50%;
+      background: #000;
+      opacity: 1;
+      z-index: 99;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="img-wrap">
+      <a class="img-show">
+        <img src="./images/1.jpg">
+      </a>
+      <a class="img-show">
+        <img src="./images/2.jpg">
+      </a>
+      <a class="img-show">
+        <img src="./images/3.jpg">
+      </a>
+      <a class="img-show">
+        <img src="./images/4.jpg">
+      </a>
+      <a class="img-show">
+        <img src="./images/5.jpg">
+      </a>
+      <a class="img-show">
+        <img src="./images/1.jpg">
+      </a>
+    </div>
+    <div class="btn-wrap">
+      <button class="left change-btn">
+        <img src="./images/left.png">
+      </button>
+      <button class="right change-btn">
+        <img src="./images/right.png">
+      </button>
+    </div>
+    <div class="dot-wrap">
+      <i class="now-dot"></i>
+      <i class="dot"></i>
+      <i class="dot"></i>
+      <i class="dot"></i>
+      <i class="dot"></i>
+      <i class="dot"></i>
+    </div>
+  </div>
+  <script>
+    //最外边的盒子,用于鼠标滑入滑出
+    const box = document.getElementsByClassName("wrap")[0]
+    //需要改变left值的盒子
+    const wrap = document.getElementsByClassName("img-wrap")[0]
+    //左按钮
+    const left = document.getElementsByTagName("button")[0]
+    //右按钮
+    const right = document.getElementsByTagName("button")[1]
+    //需要移动的小圆点
+    const dot = document.getElementsByClassName("now-dot")[0]
+    //所有图片
+    const imgs = wrap.getElementsByTagName("img")
+    //所有小圆点
+    const allDot = document.getElementsByClassName('dot')
+
+    //轮播图功能
+
+    //记录显示图片序号
+    let index = 0
+    //计时器
+    let time = null
+    //图片长度  在五张图后多加了第一张
+    let len = imgs.length
+    //图片宽度	
+    let wth = 800
+    //初始时间,防止多次点击
+    let date = new Date()
+
+    //鼠标左击
+    left.onclick = function () {
+      if (new Date() - date < 800) return
+      date = new Date()
+      //如果是第一张,先拉到最后一张再执行动画
+      if (index == 0) {
+        wrap.style.left = -wth * (len - 1) + "px"
+        //小球淡出淡入
+        animation(dot, {
+          data: {
+            opacity: 0
+          }
+        }, 300, () => {
+          dot.style.left = 4 + (len - 2) * 30 + "px"
+          animation(dot, {
+            data: {
+              opacity: 1
+            }
+          }, 300)
+        })
+        index = len - 2
+      } else {
+        index--
+        animation(dot, {
+          data: {
+            left: 4 + 30 * index
+          }
+        }, 300)
+      }
+      animation(wrap, {
+        data: {
+          left: -wth * index
+        },
+        tween: {
+          method: "quad",
+          ease: 2
+        }
+      }, 500)
+      //console.log(index)
+    }
+
+    //鼠标右击
+    right.onclick = function () {
+      if (new Date() - date < 800) return
+      date = new Date()
+      //图片
+      index++
+      animation(wrap, {
+        data: {
+          left: -wth * index
+        },
+        tween: {
+          method: "cubic",
+          ease: 1
+        }
+      }, 500, () => {
+        if (index != len - 1) return
+        wrap.style.left = 0
+        index = 0
+      })
+      //点点  最后一个点就到第一个点
+      if (index == len - 1) {
+        animation(dot, {
+          data: {
+            opacity: 0
+          }
+        }, 300, () => {
+          dot.style.left = 4 + 'px'
+          animation(dot, {
+            data: {
+              opacity: 1
+            }
+          }, 300)
+        })
+      } else {
+        animation(dot, {
+          data: {
+            left: 4 + 30 * index
+          }
+        }, 300)
+      }
+    }
+    //小圆点点击事件
+    for (let i = 0; i < len - 1; i++) {
+      allDot[i].onclick = function () {
+        //点击自己return
+        if (index == i) return
+        animation(wrap, {
+          data: {
+            left: -wth * i
+          },
+          tween: {
+            method: "linear",
+            ease: 0
+          }
+        }, 500)
+        //判断点击是不是相邻的小球
+        let diff = Math.abs((index - i))
+        //相邻
+        if (diff == 1) {
+          //移动
+          animation(dot, {
+            data: {
+              left: 4 + 30 * i
+            },
+            tween: {
+              method: "linear",
+              ease: 0
+            }
+          }, 300)
+        } else {
+          //淡入淡出
+          animation(dot, {
+            data: {
+              opacity: 0
+            }
+          }, 300, () => {
+            dot.style.left = 4 + 30 * i + "px"
+            animation(dot, {
+              data: {
+                opacity: 1
+              }
+            }, 300)
+          })
+        }
+        index = i
+      }
+    }
+
+    //定时器和右键的一样, 少了定时器
+    function timeRun() {
+      index++
+      animation(wrap, {
+        data: {
+          left: -wth * index
+        },
+        tween: {
+          method: "linear",
+          ease: 0
+        }
+      }, 500, () => {
+        if (index != len - 1) return
+        wrap.style.left = 0
+        index = 0
+      })
+      //点点  最后一个点就到第一个点
+      if (index == len - 1) {
+        animation(dot, {
+          data: {
+            opacity: 0
+          }
+        }, 300, () => {
+          dot.style.left = 4 + "px"
+          animation(dot, {
+            data: {
+              opacity: 1
+            }
+          }, 300)
+        })
+      } else {
+        animation(dot, {
+          data: {
+            left: 4 + 30 * index
+          }
+        }, 300)
+      }
+    }
+    time = setInterval(timeRun, 3000);
+
+    //鼠标移入移除事件
+    box.onmouseenter = function () {
+      clearInterval(time)
+    }
+
+    box.onmouseleave = function () {
+      clearInterval(time)
+      time = setInterval(timeRun, 3000);
+    }
+    //运动框架
+
+    //获取样式函数兼容
+    function getStyle(ele) {
+      return ele.currentStyle || getComputedStyle(ele)
+    }
+    //requestAnimationFrame兼容
+    window.requestAnimationFrame = window.requestAnimationFrame || function (fn) {
+      return setTimeout(fn, 1000 / 60);
+    }
+
+    //运动框架
+    function animation(ele, obj, time, cb) {
+      //就留4种方式
+      const Tween = {
+        linear: {
+          easeIn: function (t, b, c, d) {
+            return c * t / d + b;
+          }
+        },
+        quad: {
+          easeIn: function (t, b, c, d) {
+            return c * (t /= d) * t + b;
+          },
+          easeOut: function (t, b, c, d) {
+            return -c * (t /= d) * (t - 2) + b;
+          },
+          easeInOut: function (t, b, c, d) {
+            if ((t /= d / 2) < 1) return c / 2 * t * t + b;
+            return -c / 2 * ((--t) * (t - 2) - 1) + b;
+          }
+        },
+        cubic: {
+          easeIn: function (t, b, c, d) {
+            return c * (t /= d) * t * t + b;
+          },
+          easeOut: function (t, b, c, d) {
+            return c * ((t = t / d - 1) * t * t + 1) + b;
+          },
+          easeInOut: function (t, b, c, d) {
+            if ((t /= d / 2) < 1) return c / 2 * t * t * t + b;
+            return c / 2 * ((t -= 2) * t * t + 2) + b;
+          }
+        },
+        back: {
+          easeIn: function (t, b, c, d, s) {
+            if (typeof s == "undefined") s = 1.70158;
+            return c * (t /= d) * t * ((s + 1) * t - s) + b;
+          },
+          easeOut: function (t, b, c, d, s) {
+            if (typeof s == "undefined") s = 1.70158;
+            return c * ((t = t / d - 1) * t * ((s + 1) * t + s) + 1) + b;
+          },
+          easeInOut: function (t, b, c, d, s) {
+            if (typeof s == "undefined") s = 1.70158;
+            if ((t /= d / 2) < 1) return c / 2 * (t * t * (((s *= (1.525)) + 1) * t - s)) + b;
+            return c / 2 * ((t -= 2) * t * (((s *= (1.525)) + 1) * t + s) + 2) + b;
+          }
+        }
+      }
+      //ease方式
+      const ease = ["easeIn", "easeOut", "easeInOut"]
+      //初始时间
+      let startTime = new Date()
+      //初始所有样式
+      let allStyle = getStyle(ele)
+      //目标样式
+      let data = obj.data
+      //目标初始样式
+      let startValue = {}
+      //变化量
+      let changValue = {}
+      //添加初始以及变化量
+      for (let key in data) {
+        let value = parseFloat(allStyle[key])
+        //非NaN
+        startValue[key] = (value / 1) ? value : 0
+        changValue[key] = parseFloat(data[key]) - startValue[key]
+      }
+
+      //获取运动方式, 没有传就默认匀速
+      //默认方式
+      let de_t = { method: "linear", ease: 0 }
+      //没传默认
+      let tween = obj.tween || de_t
+      //传了判断有没有值,有一个没有就默认,管你呢 ,0也是false,加个判断
+      tween = tween.method ? (tween.ease == 0 || tween.ease) ? tween : de_t : de_t
+      let tweenM = tween.method.toLowerCase()
+      let tweenE = tween.ease
+      //ease大小判断
+      if (tweenM === "linear") {
+        tweenE = 0
+      } else {
+        //方式有没有对
+        tweenM = (tweenM == 'linear' || tweenM == 'quad' || tweenM == 'cubic' || tweenM == 'back') ? tweenM : 'linear'
+        //非linear时,不是0, 1, 2就默认0  上边有可能改变为linear,所以还要判断是不是linear
+        tweenE = (tweenM != 'linear' && tweenE <= 2 && tweenE >= 0) ? tweenE : 0
+      }
+      console.log(tweenM)
+      run()
+      //运动函数
+      function run() {
+        let nowTime = new Date()
+        //时间差
+        let changeTime = nowTime - startTime
+        //时间差和总时间比值
+        let a = changeTime / time
+        //给属性
+        for (let key in data) {
+          //计算属性
+          /*
+          * t: current time（变化时间）；
+          * b: beginning value（属性初始值）；
+          * c: change in value（属性变化量）；
+          * d: duration（持续时间 总时间）。
+          */
+          let val = (a >= 1) ? parseFloat(data[key]) : Tween[tweenM][ease[tweenE]](changeTime, startValue[key], changValue[key], time)
+          if (key.toLowerCase() === "opacity") ele.style[key] = val
+          ele.style[key] = val + "px"
+        }
+        if (a >= 1) {
+          cb && cb()
+        } else {
+          requestAnimationFrame(run)
+        }
+      }
+    }
+  </script>
+</body>
+
+</html>

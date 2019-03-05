@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Will</title>
+  <script src="run.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden
+    }
+
+    li {
+      list-style: none;
+    }
+
+    a {
+      text-decoration: none;
+    }
+
+    .wrap {
+      position: relative;
+      width: 500px;
+      height: 500px;
+      margin: 50px auto;
+    }
+
+    .box {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+    }
+
+    .btn {
+      width: 70px;
+      height: 40px;
+      outline: none;
+      line-height: 40px;
+      border-radius: 20px;
+      text-align: center;
+      background: #ccc;
+      border: none;
+    }
+
+    .btn:active {
+      background: #f40;
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+  </div>
+  <!-- <button id="come" class="btn">普通飞入</button> -->
+  <button id="shuaicome" class="btn">华丽飞入</button>
+  <button id="letgo" class="btn">华丽飞出</button>
+  <script>
+    //大盒子
+    let wrap = document.getElementsByClassName("wrap")[0];
+    //小方块儿
+    let box = document.getElementsByClassName("box");
+
+    let { random, floor } = Math;
+    //小格子序号
+    let index = 0;
+    //100个小格子的随机初始位置
+    let randomPo = null;
+
+    //生成1-100的数组
+    let arr = [];
+    for (let i = 0; i < 100; i++) {
+      arr.push(i)
+    }
+    //打乱
+    arr.sort((a, b) => {
+      return random() - 0.5
+    })
+    //创建分线程
+    let worker = new Worker("worker.js")
+    worker.postMessage(arr, randomPo)
+    worker.onmessage = function (e) {
+      randomPo = e.data
+      creatBox()
+    }
+
+    let len = arr.length
+
+    //加载100个格子
+    function creatBox() {
+      //文档片段
+      let doc = document.createDocumentFragment()
+      for (let i = 0; i < len; i++) {
+        let left = (arr[i] % 10) * 50
+        let top = floor(arr[i] / 10) * 50
+        let newEle = document.createElement("div")
+        newEle.className = "box"
+        newEle.style.cssText = `background: url(1.png) -${left}px -${top}px; left: ${randomPo[i][0]}px; top: ${randomPo[i][1]}px; display: none`
+        //添加到文档片段
+        doc.appendChild(newEle)
+      }
+      //添加文档片段
+      wrap.appendChild(doc)
+    }
+
+    //普通飞入
+    //有bug，不用了
+    // function picFly() {
+    //   //结束条件
+    //   if (index >= len) return
+    //   let a = arr[index]
+    //   let left = (a % 10) * 50;
+    //   let top = floor(a / 10) * 50
+    //   box[index].style.display = "block"
+    //   animation(box[index], {
+    //     data: {
+    //       left,
+    //       top
+    //     }
+    //   }, 100, () => {
+    //     index++
+    //     requestAnimationFrame(picFly)
+    //   })
+    // }
+
+    //随机数
+    //区间 a-b 不包括 c - d
+    function randomNum(a, b, c, d) {
+      let val = floor(random() * (b + 1 - a) + a)
+      if (c == undefined || d == undefined) return val
+      return (val > c && val < d) ? randomNum(a, b, c, d) : val
+    }
+
+    //华丽飞出
+    letgo.onclick = function () {
+      //限制条件
+      //if (index != 100) return
+      if (index == 0) return
+      for (let i = 0; i < len; i++) {
+        setTimeout(() => {
+          animation(box[i], {
+            data: {
+              left: randomPo[i][0],
+              top: randomPo[i][1],
+            },
+            tween: {
+              method: "cubic",
+              ease: 0
+            }
+          }, 1000, () => {
+            box[i].style.display = "none"
+            index--
+          })
+        }, 100 + i * 20);
+      }
+    }
+
+    shuaicome.onclick = function () {
+      //限制条件
+      //if (index != 0) return
+      for (let i = 0; i < len; i++) {
+        setTimeout(() => {
+          box[i].style.display = "block"
+          animation(box[i], {
+            data: {
+              left: (arr[i] % 10) * 50,
+              top: floor(arr[i] / 10) * 50
+            },
+            tween: {
+              method: "cubic",
+              ease: 1
+            }
+          }, 1500, () => {
+            index++
+          })
+        }, 100 + i * 20);
+      }
+    }
+
+    //普通飞入
+    // come.onclick = function () {
+    //   console.log(1)
+    //   picFly()
+    // }
+  </script>
+</body>
+
+</html>

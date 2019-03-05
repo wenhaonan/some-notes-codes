@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Will</title>
+  <style>
+  </style>
+</head>
+
+<body>
+  <script>
+    //生成数组函数
+    function createNonSortedArray(size) {
+      let worker = new Worker('worker.js')
+      let arr = null
+      worker.postMessage(size)
+      worker.onmessage = function (e) {
+        arr = e.data
+      }
+      return arr
+    }
+    console.time(1)
+    var arr = createNonSortedArray(10000)
+    console.timeEnd(1)
+    //冒泡排序 45s
+
+    // for (let i = 0; i < len; i++) {
+    //   for (let j = 0; j < len - 1 - i; j++) {
+    //     if (array[j] > array[j + 1]) {
+    //       [array[j], array[j + 1]] = [array[j + 1], array[j]]
+    //     }
+    //   }
+    // }
+
+
+    //自带排序   10万 150 - 200ms  100万 1.6s
+    //array.sort((a, b) => a - b)
+
+    //堆排序  10万 110ms  100万 1.2s
+    function heapSort(arr) {
+      //console.time('HeapSort');
+      buildHeap(arr);
+      for (let i = arr.length - 1; i > 0; i--) {
+        // 从最右侧的叶子节点开始，依次与根节点的值交换。
+        [arr[i], arr[0]] = [arr[0], arr[i]];
+        // 每次交换之后都要重新构建堆结构，记得传入i限制范围，防止已经交换的值仍然被重新构建。
+        heapify(arr, i, 0);
+      }
+      //console.timeEnd('HeapSort');
+      return arr;
+      function buildHeap(arr) {
+        // 可以观察到中间下标对应最右边叶子节点的父节点。
+        let mid = Math.floor(arr.length / 2);
+        for (let i = mid; i >= 0; i--) {
+          // 将整个数组构建成堆结构以便初始化。
+          heapify(arr, arr.length, i);
+        }
+        return arr;
+      }
+      // 从i节点开始下标在heapSize内进行堆结构构建的函数。
+      function heapify(arr, heapSize, i) {
+        // 左子节点下标。
+        let left = 2 * i + 1,
+          // 右子节点下标。
+          right = 2 * i + 2,
+          // 假设当前父节点满足要求（比子节点都大）。
+          largest = i;
+        // 如果左子节点在heapSize内，并且值大于其父节点，那么left赋给largest。
+        if (left < heapSize && arr[left] > arr[largest]) {
+          largest = left;
+        }
+        // 如果右子节点在heapSize内，并且值大于其父节点，那么right赋给largest。
+        if (right < heapSize && arr[right] > arr[largest]) {
+          largest = right;
+        }
+        if (largest !== i) {
+          // 如果largest被修改了，那么交换两者的值使得构造成一个合格的堆结构。
+          [arr[largest], arr[i]] = [arr[i], arr[largest]];
+          // 递归调用自身，将节点i所有的子节点都构建成堆结构。
+          arguments.callee(arr, heapSize, largest);
+        }
+        return arr;
+      }
+    }
+
+    //归并排序  120ms 10万   100万 1.5s
+    function mergeSort(arr) {
+      //console.time('MergeSort');
+      //let count = 0;
+      //console.timeEnd('MergeSort');
+      //return count;
+      // 主函数。
+      main(arr)
+      function main(arr) {
+        // 记得添加判断，防止无穷递归导致callstack溢出，此外也是将数组进行分解的终止条件。
+        if (arr.length === 1) return arr;
+        // 从中间开始分解，并构造左边数组和右边数组。
+        let mid = Math.floor(arr.length / 2);
+        let left = arr.slice(0, mid);
+        let right = arr.slice(mid);
+        // 开始递归调用。
+        return merge(arguments.callee(left), arguments.callee(right));
+      }
+      // 数组的合并函数，left是左边的有序数组，right是右边的有序数组。
+      function merge(left, right) {
+        // il是左边数组的一个指针，rl是右边数组的一个指针。
+        let il = 0,
+          rl = 0,
+          result = [];
+        // 同时遍历左右两个数组，直到有一个指针超出范围。
+        while (il < left.length && rl < right.length) {
+          //count++;
+          // 左边数组的当前项如果小于右边数组的当前项，那么将左边数组的当前项推入result，反之亦然，同时将推入过的指针右移。
+          if (left[il] < right[rl]) {
+            result.push(left[il++]);
+          }
+          else {
+            result.push(right[rl++]);
+          }
+        }
+        // 记得要将未读完的数组的多余部分读到result。
+        return result.concat(left.slice(il)).concat(right.slice(rl));
+      }
+    }
+    // 快速排序 50 - 80 ms 10万个   150 ms 100万个  1.5s 1000万
+    function quickSort(arr) {
+      let left = 0,
+        right = arr.length - 1;
+      //console.time('QuickSort');
+      main(arr, left, right);
+      //console.timeEnd('QuickSort');
+      return arr;
+      function main(arr, left, right) {
+        // 递归结束的条件，直到数组只包含一个元素。
+        if (arr.length === 1) {
+          // 由于是直接修改arr，所以不用返回值。
+          return;
+        }
+        // 获取left指针，准备下一轮分解。
+        let index = partition(arr, left, right);
+        if (left < index - 1) {
+          // 继续分解左边数组。
+          main(arr, left, index - 1);
+        }
+        if (index < right) {
+          // 分解右边数组。
+          main(arr, index, right);
+        }
+      }
+      // 数组分解函数。
+      function partition(arr, left, right) {
+        // 选取中间项为参考点。
+        let pivot = arr[Math.floor((left + right) / 2)];
+        // 循环直到left > right。
+        while (left <= right) {
+          // 持续右移左指针直到其值不小于pivot。
+          while (arr[left] < pivot) {
+            left++;
+          }
+          // 持续左移右指针直到其值不大于pivot。
+          while (arr[right] > pivot) {
+            right--;
+          }
+          // 此时左指针的值不小于pivot，右指针的值不大于pivot。
+          // 如果left仍然不大于right。
+          if (left <= right) {
+            // 交换两者的值，使得不大于pivot的值在其左侧，不小于pivot的值在其右侧。
+            [arr[left], arr[right]] = [arr[right], arr[left]];
+            // 左指针右移，右指针左移准备开始下一轮，防止arr[left]和arr[right]都等于pivot然后导致死循环。
+            left++;
+            right--;
+          }
+        }
+        // 返回左指针作为下一轮分解的依据。
+        return left;
+      }
+    }
+    //递归快排  10万 100 - 160 ms  100万 300ms 
+    function quickSort1(arr) {
+      // 当数组长度不大于1时，返回结果，防止callstack溢出。
+      if (arr.length <= 1) return arr;
+      return [
+        // 递归调用quickSort，通过Array.prototype.filter方法过滤小于arr[0]的值，注意去掉了arr[0]以防止出现死循环。
+        ...quickSort(arr.slice(1).filter(item => item < arr[0])),
+        arr[0],
+        ...quickSort(arr.slice(1).filter(item => item >= arr[0]))
+      ];
+    }
+
+    //递归快排2  10万 1.5s 100万 堆栈溢出  1000万 崩溃了!! 内存不够 
+    function quickSort2(a) {
+      let arr = [...a],
+        left = [],
+        right = [],
+        len = arr.length;
+      if (len <= 1) return arr
+      let arr1 = arr[0]
+      for (let i = 1; i < len; i++) {
+        (arr[i] < arr1) ? left.push(arr[i]) : right.push(arr[i])
+      }
+      return [...quickSort2(left), arr[0], ...quickSort2(right)]
+    }
+
+
+
+
+    //快速排序性能最高
+
+
+    //随机数
+    // const random = ([a, b], c) => {   //区间 a-b 不包括 c
+    //   let val = Math.floor(Math.random() * (b + 1 - a) + a)
+    //   return val === c ? random([a, b], c) : val
+    // }
+    // // i   
+    // // o    1
+   // // len  len-1
+
+    // for (let i = 0; i < len * 2; i++) {
+    //   let _i = i % len
+
+    //   //正向随机 
+    //   let ran = random([0, len], _i)
+    //     ;[array[_i], array[ran]] = [array[ran], array[_i]]
+
+    //   //反向随机
+    //   ran = random([0, len], len - _i)
+    //     ;[array[len - _i], array[ran]] = [array[ran], array[len - _i]]
+    // }
+
+  </script>
+</body>
+
+</html>
