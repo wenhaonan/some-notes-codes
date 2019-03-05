@@ -373,3 +373,106 @@ function scrollWheel(dom, cb, bool) {
       }
     }
 ```
+### 高阶函数-偏函数
+
+```
+function add(a, b) {
+      return a + b
+    }
+
+    function partial(fn, a, b) {
+      let that = this
+      let arr = fn(a, b)
+      return function () {
+        let arr1 = [].slice.call(arguments)
+        if (arr1.length === 1) {
+          arr1.push(arr)
+          return fn.apply(that, arr1)
+        }
+      }
+    }
+    let addFn = partial(add, 1, 2)
+    let a = addFn(3)
+    console.log(a)
+```
+
+### 高阶函数- 柯里化
+```
+function add() {
+      let num = 0
+      for (let i = 0; i < arguments.length; i++) {
+        num += arguments[i]
+      }
+      return num
+    }
+
+    //基础版柯里化函数
+    function currying(fn) {
+      let args = [].slice.call(arguments, 1)
+      return function () {
+        let newArgs = args.concat([].slice.call(arguments))
+        return fn.apply(null, newArgs)
+      }
+    }
+
+    //完整版柯里化函数
+    function curry(fn, minArg) {
+      if (minArg === undefined) minArg = 1
+      function f(fArg) {
+        return function () {
+          let arg = [].slice.call(arguments)
+          let newArgs = fArg.concat(arg)
+          if (newArgs.length >= minArg) {
+            return fn.apply(null, newArgs)
+          } else {
+            return f(newArgs)
+          }
+        }
+      }
+      return f([])
+    }
+    let fn = curry(add, 5)
+    let f = fn(1, 2)
+    console.log(f(3, 4, 5))
+```
+
+### 高阶函数-反柯里化
+```
+    //方法1
+    Function.prototype.uncurrying = function () {
+      var _this = this;
+      return function () {
+        var obj = Array.prototype.shift.call(arguments);
+        return _this.apply(obj, arguments);
+      };
+    };
+    //方法2
+    Function.prototype.uncurrying2 = function () {
+      var _this = this;
+      return function () {
+        return Function.prototype.call.apply(_this, arguments);
+      }
+    }
+
+    //方法3 封装为一个函数
+    function uncurrying3(fn) {
+      return function () {
+        var obj = Array.prototype.shift.call(arguments);
+        return fn.apply(obj, arguments)
+      }
+    }
+    //方法4
+    function uncurrying4(fn) {
+      return function () {
+        return Function.prototype.call.apply(fn, arguments);
+      }
+    }
+    let push = Array.prototype.push.uncurrying2()
+    let push2 = uncurrying4(Array.prototype.push)
+    //let locase = String.prototype.toLowerCase.currying()
+    let obj = {
+
+    }
+    push2(obj, "a")
+    console.log(obj) 
+```
